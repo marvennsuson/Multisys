@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Api;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\RegisterRequest;
 use App\User;
@@ -31,19 +31,20 @@ class RegistrationController extends Controller
             $response = ['status' => false, 'msg' => $validator->errors()];
             return response()->json($response, 400);
         }
-
+       
         $input = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'email_verification_token' => Str::random(32)
         ];
+        // dd($input);
         $user = User::create($input);
         $success['token'] =  $user->createToken('mytoken')->plainTextToken;
         $success['name'] =  $user->name;
         Mail::to($user->email)->queue(new VerifyEmail($user));
 
-        $response = ['status' => true, 'msg' => 'User Successfully regustered'];
+        $response = ['status' => true, 'msg' => 'User Successfully registered'];
         return response()->json($response, 201);
     }
 
